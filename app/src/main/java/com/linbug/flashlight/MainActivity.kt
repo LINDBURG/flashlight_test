@@ -31,6 +31,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding?.root)
 
         initFlashlight()
+        initPermission()
 
         // button turn on off
         binding?.flashButton?.setOnClickListener {
@@ -41,6 +42,31 @@ class MainActivity : AppCompatActivity() {
             }
         }
         
+    }
+
+    private fun initPermission() {
+        when {
+            ContextCompat.checkSelfPermission(
+                applicationContext,
+                Manifest.permission.CAMERA
+            ) == PackageManager.PERMISSION_GRANTED -> {
+                Log.d("Lindbug", "permission ok")
+                mFlashOn = false
+                mCameraId?.let {
+                    mCameraManager?.setTorchMode(mCameraId!!, false)
+                }
+                binding?.flashButton?.text = getString(R.string.turn_on_text)
+            }
+            shouldShowRequestPermissionRationale(Manifest.permission.CAMERA) -> {
+                Log.d("Lindbug", "message")
+                Toast.makeText(this, "please give permission", Toast.LENGTH_SHORT).show()
+            }
+            else -> {
+                Log.d("Lindbug", "request")
+                requestPermissionLauncher.launch(
+                    Manifest.permission.CAMERA)
+            }
+        }
     }
 
 
@@ -71,53 +97,27 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun flashLightOn() {
-        when {
-            ContextCompat.checkSelfPermission(
-                applicationContext,
-                Manifest.permission.CAMERA
-            ) == PackageManager.PERMISSION_GRANTED -> {
-                Log.d("Lindbug", "permission ok")
-                mFlashOn = true
-                mCameraId?.let {
-                    mCameraManager?.setTorchMode(mCameraId!!, true)
-                }
-                binding?.flashButton?.text = getString(R.string.turn_off_text)
-            }
-            shouldShowRequestPermissionRationale(Manifest.permission.CAMERA) -> {
-                Log.d("Lindbug", "message")
-                Toast.makeText(this, "please give permission", Toast.LENGTH_SHORT).show()
-            }
-            else -> {
-                Log.d("Lindbug", "request")
-                requestPermissionLauncher.launch(
-                    Manifest.permission.CAMERA)
-            }
+        if (!permissionGranted) {
+            return
         }
+
+        mFlashOn = true
+        mCameraId?.let {
+            mCameraManager?.setTorchMode(mCameraId!!, true)
+        }
+        binding?.flashButton?.text = getString(R.string.turn_off_text)
     }
 
     private fun flashLightOff() {
-        when {
-            ContextCompat.checkSelfPermission(
-                applicationContext,
-                Manifest.permission.CAMERA
-            ) == PackageManager.PERMISSION_GRANTED -> {
-                Log.d("Lindbug", "permission ok")
-                mFlashOn = false
-                mCameraId?.let {
-                    mCameraManager?.setTorchMode(mCameraId!!, false)
-                }
-                binding?.flashButton?.text = getString(R.string.turn_on_text)
-            }
-            shouldShowRequestPermissionRationale(Manifest.permission.CAMERA) -> {
-                Log.d("Lindbug", "message")
-                Toast.makeText(this, "please give permission", Toast.LENGTH_SHORT).show()
-            }
-            else -> {
-                Log.d("Lindbug", "request")
-                requestPermissionLauncher.launch(
-                    Manifest.permission.CAMERA)
-            }
+        if (!permissionGranted) {
+            return
         }
+
+        mFlashOn = false
+        mCameraId?.let {
+            mCameraManager?.setTorchMode(mCameraId!!, false)
+        }
+        binding?.flashButton?.text = getString(R.string.turn_on_text)
     }
 
 }
