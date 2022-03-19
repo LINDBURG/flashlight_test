@@ -15,9 +15,9 @@ import com.linbug.flashlight.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
 
-    private var mCameraManager: CameraManager? = null
-    private var mFlashOn = false
-    private var mCameraId: String? = null
+    private var cameraManager: CameraManager? = null
+    private var isFlashOn = false
+    private var cameraId: String? = null
     private var binding: ActivityMainBinding? = null
     private var permissionGranted = false
     private val requestPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
@@ -35,7 +35,7 @@ class MainActivity : AppCompatActivity() {
 
         // button turn on off
         binding?.flashButton?.setOnClickListener {
-            if (mFlashOn) {
+            if (isFlashOn) {
                 flashLightOff()
             } else {
                 flashLightOn()
@@ -51,9 +51,9 @@ class MainActivity : AppCompatActivity() {
                 Manifest.permission.CAMERA
             ) == PackageManager.PERMISSION_GRANTED -> {
                 Log.d("Lindbug", "permission ok")
-                mFlashOn = false
-                mCameraId?.let {
-                    mCameraManager?.setTorchMode(mCameraId!!, false)
+                isFlashOn = false
+                cameraId?.let {
+                    cameraManager?.setTorchMode(cameraId!!, false)
                 }
                 binding?.flashButton?.text = getString(R.string.turn_on_text)
             }
@@ -79,15 +79,15 @@ class MainActivity : AppCompatActivity() {
             ).show()
             return
         }
-        mCameraManager = getSystemService(CAMERA_SERVICE) as CameraManager
+        cameraManager = getSystemService(CAMERA_SERVICE) as CameraManager
 
-        if (mCameraId == null && mCameraManager?.cameraIdList?.isNotEmpty() == true) {
-            for (id in mCameraManager!!.cameraIdList) {
-                val c: CameraCharacteristics = mCameraManager!!.getCameraCharacteristics(id)
+        if (cameraId == null && cameraManager?.cameraIdList?.isNotEmpty() == true) {
+            for (id in cameraManager!!.cameraIdList) {
+                val c: CameraCharacteristics = cameraManager!!.getCameraCharacteristics(id)
                 val flashAvailable = c.get(CameraCharacteristics.FLASH_INFO_AVAILABLE)
                 val lensFacing = c.get(CameraCharacteristics.LENS_FACING)
                 if (flashAvailable != null && lensFacing == CameraCharacteristics.LENS_FACING_BACK) {
-                    mCameraId = id
+                    cameraId = id
                     break
                 }
             }
@@ -101,9 +101,9 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        mFlashOn = true
-        mCameraId?.let {
-            mCameraManager?.setTorchMode(mCameraId!!, true)
+        isFlashOn = true
+        cameraId?.let {
+            cameraManager?.setTorchMode(cameraId!!, true)
         }
         binding?.flashButton?.text = getString(R.string.turn_off_text)
     }
@@ -113,9 +113,9 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        mFlashOn = false
-        mCameraId?.let {
-            mCameraManager?.setTorchMode(mCameraId!!, false)
+        isFlashOn = false
+        cameraId?.let {
+            cameraManager?.setTorchMode(cameraId!!, false)
         }
         binding?.flashButton?.text = getString(R.string.turn_on_text)
     }
